@@ -113,6 +113,14 @@ var prevsig = 0;
 var njump = 0;
 var jumptimes = new CircularArray(10);
 
+function clearJumps() {
+    jumptimes.length = 0;
+    njump = 0;
+    document.getElementById("jumpcount").innerHTML = `${njump} jumps`;
+}
+
+document.getElementById("clear").onclick = clearJumps;
+
 function onResults(results) {
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -163,9 +171,13 @@ function onResults(results) {
         if (jump) {
             njump++;
             jumptimes.push(0.001*ts);
-            console.log(jumptimes, jumptimes.diff(), jumptimes.diff().mean());
+            // console.log(jumptimes, jumptimes.diff(), jumptimes.diff().mean());
             let rate = Math.round(60./jumptimes.diff().mean());
-            document.getElementById("jumpcount").innerHTML = `${njump} jumps at ${rate}/min`;
+            if (njump > 2) {
+                document.getElementById("jumpcount").innerHTML = `${njump} jumps at ${rate}/min`;
+            } else {
+                document.getElementById("jumpcount").innerHTML = `${njump} jumps`;
+            }
         }
 
         Plotly.extendTraces("chart",{ y: [[yval],[sig],[0.4*meanvis]]}, [0,1,2]);

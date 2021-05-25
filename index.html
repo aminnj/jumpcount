@@ -16,11 +16,14 @@
 
 <body>
   <div class="container">
-    <h1><div id="jumpcount" style="display: inline-block">0 jumps</div></h1>
+    <h1>
+        <div id="jumpcount" style="display: inline-block">0 jumps</div>
+    <button  onclick="document.querySelector('.input_video').srcObject.getTracks()[0].stop();">stop</button>
+    <button  id="clear" >reset</button>
+    </h1>
     <video class="input_video" style="display:none;"></video>
     <canvas class="output_canvas" width="640px" height="360px" style="display: inline-block;"></canvas>
-    <div id="chart" style="display: inline-block"></div>
-    <button onclick="document.querySelector('.input_video').srcObject.getTracks()[0].stop();">stop</button>
+    <div id="chart" style="display: inline-block" height="300px"></div>
   </div>
 </body>
 </html>
