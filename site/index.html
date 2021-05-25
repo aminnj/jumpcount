@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script type="module" src="main.js"></script>
+
+  <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+
+</head>
+
+<body>
+  <div class="container">
+    <h1><div id="jumpcount" style="display: inline-block">0 jumps</div></h1>
+    <video class="input_video" style="display:none;"></video>
+    <canvas class="output_canvas" width="640px" height="360px" style="display: inline-block;"></canvas>
+    <div id="chart" style="display: inline-block"></div>
+    <button onclick="document.querySelector('.input_video').srcObject.getTracks()[0].stop();">stop</button>
+  </div>
+</body>
+</html>
