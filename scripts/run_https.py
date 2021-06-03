@@ -1,3 +1,4 @@
+# stolen from https://gist.github.com/dergachev/7028596#gistcomment-3720350
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import ssl, os
 os.system("openssl req -nodes -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=mylocalhost'")

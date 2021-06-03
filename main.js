@@ -86,12 +86,15 @@ var url = "http://localhost:5000/logger"
 Plotly.plot('chart',[{
     y:[],
     type:'line',
+    name:'de-meaned torso y-value',
 },{
     y:[],
     type:'line',
+    name:'peak indicator',
 },{
     y:[],
     type:'line',
+    name:'torso visibility',
 }],
     {
         yaxis: {
@@ -179,6 +182,8 @@ function onResults(results) {
                 document.getElementById("jumpcount").innerHTML = `${njump} jumps`;
             }
         }
+
+
 
         Plotly.extendTraces("chart",{ y: [[yval],[sig],[0.4*meanvis]]}, [0,1,2]);
         npoints++;
