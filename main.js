@@ -80,8 +80,6 @@ const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
 
-var results_buffer = [];
-var url = "http://localhost:5000/logger"
 
 Plotly.plot('chart',[{
     y:[],
@@ -115,9 +113,12 @@ var detector = new Detector(30, 1.0);
 var prevsig = 0;
 var njump = 0;
 var jumptimes = new CircularArray(10);
+var results_buffer = [];
+var url = "http://localhost:5000/logger"
 
 function clearJumps() {
     jumptimes.length = 0;
+    results_buffer.length = 0;
     njump = 0;
     document.getElementById("jumpcount").innerHTML = `${njump} jumps`;
 }
@@ -138,16 +139,11 @@ function onResults(results) {
     var landmarks = results["poseLandmarks"];
     var ts = Date.now();
 
+    var sig = 0;
     if (landmarks.length > 0) {
         [11,12,23,24].forEach(
             i => rollings[i].push(landmarks[i].y)
         );
-        // console.log(
-        //     rollings[11].mean(),
-        //     rollings[12].mean(),
-        //     rollings[23].mean(),
-        //     rollings[24].mean(),
-        // );
 
         let yval = (
             (landmarks[11].y - rollings[11].mean()) +
@@ -162,11 +158,10 @@ function onResults(results) {
             landmarks[24].visibility
         )/4;
 
-        let sig = 0;
+        sig = 0;
         if (meanvis >= 0.75) {
             sig = 0.3*detector.update(yval);
         }
-        // console.log(sumvis);
 
         let jump = ((prevsig > 0) && (sig < 0));
         prevsig = sig;
@@ -174,7 +169,6 @@ function onResults(results) {
         if (jump) {
             njump++;
             jumptimes.push(0.001*ts);
-            // console.log(jumptimes, jumptimes.diff(), jumptimes.diff().mean());
             let rate = Math.round(60./jumptimes.diff().mean());
             if (njump > 2) {
                 document.getElementById("jumpcount").innerHTML = `${njump} jumps at ${rate}/min`;
@@ -197,6 +191,25 @@ function onResults(results) {
 
     }
 
+    var ret = {};
+    ret["landmarks"] = results["poseLandmarks"];
+    ret["jump"] = sig;
+    ret["date"] = Date.now();
+    for (var i = 0; i < ret["landmarks"].length; i++) {
+        ret["landmarks"][i]["x"] = Math.round(ret["landmarks"][i]["x"]*1e5)/1e5;
+        ret["landmarks"][i]["y"] = Math.round(ret["landmarks"][i]["y"]*1e5)/1e5;
+        ret["landmarks"][i]["z"] = Math.round(ret["landmarks"][i]["z"]*1e5)/1e5;
+        ret["landmarks"][i]["visibility"] = Math.round(ret["landmarks"][i]["visibility"]*1e3)/1e3;
+    }
+    results_buffer.push(ret);
+    if (results_buffer.length > 54000) {
+        results_buffer.length = 0;
+    }
+
+    // if (results_buffer.length % 100 == 0) {
+    //     console.log(results_buffer.length);
+    // }
+
 
   // var ret = {};
   // ret["landmarks"] = results["poseLandmarks"];
@@ -215,6 +228,21 @@ function onResults(results) {
 }
 
             
+const downloadToFile = (content, filename, contentType) => {
+    const a = document.createElement('a');
+    const file = new Blob([content], {type: contentType});
+    a.href= URL.createObjectURL(file);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+};
+
+document.querySelector('#btnSave').addEventListener('click', () => {
+    const textArea = document.querySelector('textarea');
+    let ts = Math.floor(Date.now() / 1000);
+    // downloadToFile(JSON.stringify(results_buffer), 'data_' + ts + '.jsonl', 'text/plain');
+    downloadToFile(results_buffer.map(x=>JSON.stringify(x)).join('\n'), 'data_' + ts + '.jsonl', 'text/plain');
+});
 
 const pose = new Pose({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
